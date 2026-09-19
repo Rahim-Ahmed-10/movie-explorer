@@ -1,47 +1,38 @@
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import Navbar from '../components/Navbar'
+import PosterStack from '../components/PosterStack'
+import { fetchAllShows } from '../utils/api'
 
-const layout = [
-  { x: '-4%', y: '6%', rotate: -8, size: 'w-28 sm:w-36', z: 10, delay: 0 },
-  { x: '22%', y: '-4%', rotate: 4, size: 'w-32 sm:w-40', z: 20, delay: 0.1 },
-  { x: '48%', y: '10%', rotate: -3, size: 'w-28 sm:w-36', z: 10, delay: 0.2 },
-  { x: '10%', y: '38%', rotate: 6, size: 'w-24 sm:w-32', z: 5, delay: 0.3 },
-  { x: '58%', y: '40%', rotate: -6, size: 'w-24 sm:w-32', z: 5, delay: 0.4 },
-]
+export default function Home() {
+  const [trendingShows, setTrendingShows] = useState([])
 
-export default function PosterStack({ posters }) {
-  if (!posters?.length) return null
+  useEffect(() => {
+    fetchAllShows().then((data) => {
+      // API থেকে প্রথম ৫টি শো এর ডেটা পোস্টার স্ট্যাকের জন্য নিয়ে নিচ্ছি
+      setTrendingShows(data.slice(0, 5))
+    })
+  }, [])
 
   return (
-    <div className="relative h-[320px] w-full sm:h-[380px]">
-      {layout.slice(0, posters.length).map((pos, i) => (
-        <motion.div
-          key={posters[i].id}
-          initial={{ opacity: 0, y: 30, rotate: 0 }}
-          animate={{
-            opacity: 1,
-            y: [0, -10, 0],
-            rotate: pos.rotate,
-          }}
-          transition={{
-            opacity: { duration: 0.6, delay: pos.delay },
-            rotate: { duration: 0.6, delay: pos.delay },
-            y: {
-              duration: 4 + i * 0.4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: pos.delay,
-            },
-          }}
-          style={{ left: pos.x, top: pos.y, zIndex: pos.z }}
-          className={`absolute ${pos.size} overflow-hidden border-2 border-ink-line shadow-2xl shadow-black/50`}
-        >
-          <img
-            src={posters[i].image?.medium}
-            alt={posters[i].name}
-            className="aspect-[2/3] w-full object-cover"
-          />
-        </motion.div>
-      ))}
+    <div className="min-h-screen bg-black text-white">
+      <Navbar />
+      
+      <main className="max-w-[1440px] mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
+        {/* বাম পাশের টেক্সট সেকশন */}
+        <div>
+          <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight">
+            Discover Cinematic Universes
+          </h1>
+          <p className="mt-4 text-[#a8a3ae] text-base sm:text-lg">
+            Explore thousands of TV shows, movies, and exclusive collections in stunning detail.
+          </p>
+        </div>
+
+        {/* ডান পাশের PosterStack কম্পোনেন্ট */}
+        <div className="w-full flex justify-center">
+          <PosterStack posters={trendingShows} />
+        </div>
+      </main>
     </div>
   )
 }
