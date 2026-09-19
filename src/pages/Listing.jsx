@@ -82,7 +82,7 @@ export default function Listing() {
   }, [query, selectedCategory])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#0d0c11] text-paper">
       <Navbar />
 
       <main className="flex-1">
@@ -91,33 +91,31 @@ export default function Listing() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="marquee-title text-4xl text-paper sm:text-5xl"
+            className="marquee-title text-4xl text-paper sm:text-5xl font-black tracking-tight mb-8"
           >
             Browse the catalog
           </motion.h1>
 
-          {/* সার্চ বার */}
+          {/* প্রিমিয়াম ফুল-উইডথ সার্চ ও ক্যাটাগরি কন্টেইনার */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="mt-6 max-w-xl"
+            className="rounded-3xl border border-ink-line bg-ink-soft/60 backdrop-blur-xl p-6 shadow-2xl space-y-6"
           >
-            <SearchBar value={query} onChange={setQuery} loading={searching} />
-          </motion.div>
+            {/* সার্চ বার */}
+            <div className="w-full">
+              <SearchBar value={query} onChange={setQuery} loading={searching} />
+            </div>
 
-          {/* ক্যাটাগরি বার যুক্ত করা হলো */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="mt-6"
-          >
-            <CategoryBar
-              categories={CATEGORIES}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
+            {/* ক্যাটাগরি বার */}
+            <div>
+              <CategoryBar
+                categories={CATEGORIES}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+              />
+            </div>
           </motion.div>
         </div>
 
