@@ -3,14 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import SearchBar from '../components/SearchBar.jsx'
+import CategoryBar from '../components/CategoryBar.jsx'
 import MovieCard from '../components/MovieCard.jsx'
 import MovieModal from '../components/MovieModal.jsx'
 import { fetchAllShows, searchShows, sortByRating } from '../utils/api.js'
+
+// ক্যাটাগরি বা জেনারগুলোর তালিকা
+const CATEGORIES = ['All', 'Drama', 'Action', 'Comedy', 'Sci-Fi', 'Thriller', 'Crime', 'Romance', 'Horror']
 
 export default function Listing() {
   const [allShows, setAllShows] = useState([])
   const [results, setResults] = useState([])
   const [query, setQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [searching, setSearching] = useState(false)
   const [selectedShow, setSelectedShow] = useState(null)
@@ -62,10 +67,19 @@ export default function Listing() {
     }
   }, [query, allShows])
 
+  // ক্যাটাগরি অনুযায়ী ফিল্টার করা লজিক
+  const filteredShows = useMemo(() => {
+    if (selectedCategory === 'All') return results
+    return results.filter((show) => show.genres?.includes(selectedCategory))
+  }, [results, selectedCategory])
+
   const heading = useMemo(() => {
-    if (query.trim()) return `Results for "${query.trim()}"`
-    return 'Popular right now'
-  }, [query])
+    let text = query.trim() ? `Results for "${query.trim()}"` : 'Popular right now'
+    if (selectedCategory !== 'All') {
+      text += ` in ${selectedCategory}`
+    }
+    return text
+  }, [query, selectedCategory])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -81,6 +95,8 @@ export default function Listing() {
           >
             Browse the catalog
           </motion.h1>
+
+          {/* সার্চ বার */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,6 +104,20 @@ export default function Listing() {
             className="mt-6 max-w-xl"
           >
             <SearchBar value={query} onChange={setQuery} loading={searching} />
+          </motion.div>
+
+          {/* ক্যাটাগরি বার যুক্ত করা হলো */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="mt-6"
+          >
+            <CategoryBar
+              categories={CATEGORIES}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
           </motion.div>
         </div>
 
@@ -98,7 +128,7 @@ export default function Listing() {
             </p>
             {status === 'ready' && (
               <p className="text-sm text-paper-dim">
-                {results.length} {results.length === 1 ? 'show' : 'shows'}
+                {filteredShows.length} {filteredShows.length === 1 ? 'show' : 'shows'}
               </p>
             )}
           </div>
@@ -120,27 +150,26 @@ export default function Listing() {
           {status === 'error' && (
             <div className="border border-ink-line bg-ink-soft p-8 text-center">
               <p className="text-paper-dim">
-                Couldn't reach the show catalog. Check your connection and
-                try again.
+                Couldn't reach the show catalog. Check your connection and try again.
               </p>
             </div>
           )}
 
-          {status === 'ready' && results.length === 0 && (
+          {status === 'ready' && filteredShows.length === 0 && (
             <div className="border border-ink-line bg-ink-soft p-8 text-center">
               <p className="text-paper-dim">
-                No shows match "{query.trim()}". Try a different title.
+                No shows match your filter criteria. Try a different title or category.
               </p>
             </div>
           )}
 
-          {status === 'ready' && results.length > 0 && (
+          {status === 'ready' && filteredShows.length > 0 && (
             <motion.div
               layout="position"
               className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
             >
               <AnimatePresence mode="popLayout">
-                {results.map((show) => (
+                {filteredShows.map((show) => (
                   <MovieCard
                     key={show.id}
                     show={show}

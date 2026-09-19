@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
-import { fetchAllShows, sortByRating, getYear } from '../utils/api.js'
+import MovieCard from '../components/MovieCard.jsx' // MovieCard কম্পোনেন্টটি ইম্পোর্ট করা হলো
+import { fetchAllShows, sortByRating } from '../utils/api.js'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -18,6 +19,7 @@ export default function Home() {
   const [posters, setPosters] = useState([])
   const [trending, setTrending] = useState([])
   const [activeIndex, setActiveIndex] = useState(2)
+  const [selectedShow, setSelectedShow] = useState(null) // মডালের জন্য স্টেট
 
   useEffect(() => {
     const controller = new AbortController()
@@ -46,7 +48,6 @@ export default function Home() {
       <main className="flex-1">
         {/* Cinematic 3D Carousel Banner Section */}
         <section className="relative min-h-[85vh] flex flex-col items-center justify-center overflow-hidden border-b border-[#2c2933] px-6 py-20">
-          {/* Ambient Background Lighting */}
           <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[450px] w-[450px] rounded-full bg-[#f0a839]/10 blur-[140px]" />
 
           <div className="relative mx-auto max-w-[1440px] w-full px-4 text-center z-10">
@@ -209,7 +210,6 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="group relative p-8 rounded-3xl bg-gradient-to-b from-[#1c1924] to-[#121017] border border-[#2c2933] backdrop-blur-xl transition-all duration-500 hover:border-[#f0a839]/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#f0a839]/15 overflow-hidden"
               >
-                {/* Subtle top glow line on hover */}
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f0a839] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 
                 <p className="text-4xl font-black bg-gradient-to-r from-[#f0a839] to-[#ffd08a] bg-clip-text text-transparent mb-4">
@@ -226,7 +226,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trending Section - Exactly 4 Professional Cards */}
+        {/* Trending Section - Fixed with MovieCard Component */}
         {trending.length > 0 && (
           <section id="trending" className="border-t border-[#2c2933] py-20 bg-[#0d0c11]">
             <div className="mx-auto max-w-[1440px] px-6">
@@ -248,7 +248,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Grid Container for 4 Cards */}
+            {/* Grid Container using MovieCard */}
             <div className="max-w-[1440px] mx-auto px-6">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-6xl mx-auto">
                 {trending.map((show, i) => (
@@ -258,26 +258,8 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-40px' }}
                     transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="w-full group cursor-pointer"
                   >
-                    <Link to={`/movies`}>
-                      <div className="relative overflow-hidden rounded-xl border border-[#2c2933] bg-[#17151d] shadow-lg transition-all duration-300 group-hover:border-[#f0a839]/60 group-hover:shadow-2xl group-hover:shadow-[#f0a839]/10 group-hover:-translate-y-2">
-                        <img
-                          src={show.image.medium}
-                          alt={show.name}
-                          className="aspect-[2/3] w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c11] via-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-75" />
-                      </div>
-                    </Link>
-                    <div className="mt-3.5">
-                      <p className="line-clamp-1 text-sm font-bold text-[#f5f1ea] group-hover:text-[#f0a839] transition-colors">
-                        {show.name}
-                      </p>
-                      <p className="text-xs text-[#a8a3ae] mt-0.5 font-medium">
-                        {getYear(show.premiered)}
-                      </p>
-                    </div>
+                    <MovieCard show={show} onOpenDetails={setSelectedShow} />
                   </motion.div>
                 ))}
               </div>
